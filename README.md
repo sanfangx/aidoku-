@@ -1,27 +1,34 @@
-# Aidoku Community Sources
+# sanfangx Aidoku Sources
 
-This repository hosts unofficial sources maintained by community members that are installable in [Aidoku](https://github.com/Aidoku/Aidoku).
+本仓库托管个人定制维护的 Aidoku 漫画源（适用于 Aidoku 0.7+ 版本）。
 
-## Usage
+与官方社区源库相互独立，不冲突、构建轻量快速。
 
-On a device with Aidoku (0.7+) installed, you can open [https://aidoku-community.github.io/sources/](https://aidoku-community.github.io/sources/) and click the "Add Repository" button to add the source list directly to the app.
+---
 
-Otherwise, navigate to the settings tab, and under the source lists page add `https://aidoku-community.github.io/sources/index.min.json`.
+## 包含站点源
 
-If a source is not working, or you want to request a source that isn't available in this source list, feel free to [create a new issue](https://github.com/Aidoku-Community/sources/issues).
+| 站点名称 | Source ID | 语言 | 目标地址 | 特色说明 |
+| :--- | :--- | :---: | :--- | :--- |
+| **Komiic CC** | `zh.komiiccc` | 中文 (`zh`) | `https://komiic.cc` | 针对 komiic.com 境内直连受阻问题优化的镜像直连源，内置封面 CDN 修复 |
 
-## Contributing
+---
 
-Contributions are welcome! If you're new to Aidoku source development, check out [the official source development guide](https://aidoku.github.io/aidoku-rs/book/). Then, see [CONTRIBUTING.md](./CONTRIBUTING.md) for ways to contribute to this repo.
+## 使用方法 (Usage)
 
-## License
+### 方式 1：一键添加到 Aidoku（推荐）
+在安装了 Aidoku 的 iOS 设备上使用 Safari 浏览器打开：
+👉 [https://sanfangx.github.io/aidoku-/](https://sanfangx.github.io/aidoku-/)
 
-This repo is licensed under either of Apache License, version 2.0 or MIT license at your option.
+点击页面顶部的 **"Add Repository"** 按钮即可一键添加源列表。
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this repository by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+### 方式 2：手动添加源列表
+在 Aidoku 客户端中打开 `Settings`（设置）-> `Source Lists`（源列表），点击右上角 `+`，输入以下链接：
+```
+https://sanfangx.github.io/aidoku-/index.min.json
+```
 
-## Disclaimer
+---
 
-This project does not have any affiliation with the content providers nor the Aidoku application.
-
-If you own either a content provider or content that is hosted on one of the content providers that a source is offered for and wish not to have the source be made available on this repo, please contact us or [create a new issue](https://github.com/Aidoku-Community/sources/issues/new) to let us know and we will remove it.
+## 许可证
+Licensed under either of Apache License 2.0 or MIT license.

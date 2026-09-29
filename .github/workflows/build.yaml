@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "sources/**"
-      - "templates/**"
-      - ".github/actions/install-aidoku-cli/**"
-      - ".github/workflows/build.yaml"
 
 concurrency:
   group: ${{ github.workflow }}
@@ -57,7 +52,7 @@ jobs:
 
       - name: Build source list
         run: |
-          aidoku build sources/*/package.aix --name "Aidoku Community Sources"
+          aidoku build sources/*/package.aix --name "sanfangx Aidoku Sources"
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.7.2
