@@ -1,6 +1,22 @@
 [
 	{
 		"type": "group",
+		"title": "站点设置",
+		"items": [
+			{
+				"type": "select",
+				"key": "domain",
+				"title": "站点域名",
+				"values": ["https://komiic.cc", "https://komiic.com"],
+				"titles": ["komiic.cc (直连镜像)", "komiic.com (官方原站)"],
+				"default": "https://komiic.cc",
+				"refreshes": ["content", "listings"]
+			}
+		],
+		"footer": "若 komiic.com 无法直连，可切换至 komiic.cc 镜像站点。"
+	},
+	{
+		"type": "group",
 		"title": "阅读设置",
 		"items": [
 			{
@@ -30,7 +46,7 @@
 			{
 				"type": "link",
 				"title": "内容警告偏好",
-				"url": "https://komiic.com/settings/warnings",
+				"url": "https://komiic.cc/settings/warnings",
 				"external": true,
 				"requires": "login"
 			}

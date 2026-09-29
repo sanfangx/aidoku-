@@ -1,5 +1,6 @@
 name: Build source list
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

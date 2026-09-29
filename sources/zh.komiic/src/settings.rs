@@ -1,6 +1,26 @@
 use super::*;
 
 impl KomiicSource {
+	pub(super) fn base_url() -> String {
+		defaults_get::<String>(DOMAIN_KEY).unwrap_or_else(|| String::from(DEFAULT_BASE_URL))
+	}
+
+	pub(super) fn query_url() -> String {
+		format!("{}/api/query", Self::base_url())
+	}
+
+	pub(super) fn login_url() -> String {
+		format!("{}/api/login", Self::base_url())
+	}
+
+	pub(super) fn image_url() -> String {
+		format!("{}/api/image", Self::base_url())
+	}
+
+	pub(super) fn referer_url() -> String {
+		format!("{}/", Self::base_url())
+	}
+
 	pub(super) fn auth_token() -> Option<String> {
 		defaults_get(TOKEN_KEY)
 	}
@@ -30,7 +50,7 @@ impl KomiicSource {
 impl BasicLoginHandler for KomiicSource {
 	fn handle_basic_login(&self, _key: String, username: String, password: String) -> Result<bool> {
 		let json = Self::post_json(
-			LOGIN_URL,
+			Self::login_url().as_str(),
 			json!({
 				"email": username,
 				"password": password

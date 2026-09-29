@@ -19,11 +19,8 @@ use aidoku::{
 };
 use serde_json::{Value, json};
 
-const BASE_URL: &str = "https://komiic.com";
-const QUERY_URL: &str = "https://komiic.com/api/query";
-const LOGIN_URL: &str = "https://komiic.com/api/login";
-const IMAGE_URL: &str = "https://komiic.com/api/image";
-const REFERER_URL: &str = "https://komiic.com/";
+const DEFAULT_BASE_URL: &str = "https://komiic.cc";
+const DOMAIN_KEY: &str = "domain";
 const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 const PAGE_SIZE: i32 = 20;
 const CATEGORY_PAGE_SIZE: i32 = 30;
@@ -96,7 +93,7 @@ impl KomiicSource {
 			.unwrap_or_default();
 		let serial_number = serial.parse::<f32>().ok();
 		let is_book = value.get("type").and_then(Value::as_str) == Some("book");
-		let url = format!("{BASE_URL}/comic/{manga_key}/chapter/{key}/images/all");
+		let url = format!("{}/comic/{manga_key}/chapter/{key}/images/all", Self::base_url());
 		Some(Chapter {
 			key,
 			title: Self::chapter_title(value),
@@ -219,18 +216,20 @@ impl Source for KomiicSource {
 			.and_then(Value::as_array)
 			.ok_or_else(|| error!("Komiic missing images"))?;
 		let mut pages = Vec::new();
+		let base_url = Self::base_url();
+		let image_url = Self::image_url();
 		for value in values {
 			if let Some(kid) = value.get("kid").and_then(Value::as_str) {
 				let mut context: PageContext = HashMap::new();
 				context.insert(
 					String::from("referer"),
 					format!(
-						"{BASE_URL}/comic/{}/chapter/{}/images/all",
+						"{base_url}/comic/{}/chapter/{}/images/all",
 						manga.key, chapter.key
 					),
 				);
 				pages.push(Page {
-					content: PageContent::url_context(format!("{IMAGE_URL}/{kid}"), context),
+					content: PageContent::url_context(format!("{image_url}/{kid}"), context),
 					..Default::default()
 				});
 			}
@@ -277,7 +276,7 @@ impl ImageRequestProvider for KomiicSource {
 	) -> Result<Request> {
 		let referer = context
 			.and_then(|value| value.get("referer").cloned())
-			.unwrap_or_else(|| String::from(REFERER_URL));
+			.unwrap_or_else(|| Self::referer_url());
 		let mut request = Request::get(url)?;
 		request.set_header("User-Agent", USER_AGENT);
 		request.set_header("Referer", referer.as_str());
@@ -434,7 +433,7 @@ mod tests {
 			manga.cover.as_deref(),
 			Some("https://example.com/cover.jpg")
 		);
-		assert_eq!(manga.url.as_deref(), Some("https://komiic.com/comic/1"));
+		assert_eq!(manga.url.as_deref(), Some("https://komiic.cc/comic/1"));
 		assert_eq!(manga.status, MangaStatus::Ongoing);
 		assert_eq!(manga.content_rating, ContentRating::Safe);
 		assert_eq!(manga.viewer, Viewer::RightToLeft);

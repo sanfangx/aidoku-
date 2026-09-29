@@ -33,7 +33,7 @@ impl KomiicSource {
 	fn request(url: &str) -> Result<Request> {
 		let mut request = Request::post(url)?;
 		request.set_header("Accept", "application/json");
-		request.set_header("Referer", REFERER_URL);
+		request.set_header("Referer", Self::referer_url().as_str());
 		request.set_header("User-Agent", USER_AGENT);
 		request.set_header("Content-Type", "application/json");
 		if let Some(token) = Self::auth_token() {
@@ -63,7 +63,7 @@ impl KomiicSource {
 	}
 
 	pub(super) fn query(payload: Value) -> Result<Value> {
-		Self::post_json(QUERY_URL, payload)
+		Self::post_json(Self::query_url().as_str(), payload)
 	}
 
 	pub(super) fn string_field(value: &Value, key: &str) -> Option<String> {
@@ -209,11 +209,19 @@ impl KomiicSource {
 	fn parse_manga(value: &Value, minimal: bool) -> Manga {
 		let key = Self::string_field(value, "id").unwrap_or_default();
 		let title = Self::string_field(value, "title").unwrap_or_else(|| key.clone());
-		let url = Some(format!("{BASE_URL}/comic/{key}"));
+		let base_url = Self::base_url();
+		let url = Some(format!("{base_url}/comic/{key}"));
+		let cover = Self::string_field(value, "imageUrl").map(|url| {
+			if base_url.contains("komiic.cc") {
+				url.replace("public.komiic.com", "public.komiic.cc")
+			} else {
+				url
+			}
+		});
 		let mut manga = Manga {
 			key,
 			title,
-			cover: Self::string_field(value, "imageUrl"),
+			cover,
 			url,
 			status: Self::manga_status(value),
 			content_rating: ContentRating::Safe,

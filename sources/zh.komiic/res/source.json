@@ -2,8 +2,12 @@
 	"info": {
 		"id": "zh.komiic",
 		"name": "Komiic",
-		"version": 1,
-		"url": "https://komiic.com",
+		"version": 2,
+		"url": "https://komiic.cc",
+		"urls": [
+			"https://komiic.cc",
+			"https://komiic.com"
+		],
 		"contentRating": 0,
 		"languages": ["zh"]
 	},
