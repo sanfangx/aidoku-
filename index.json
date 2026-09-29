@@ -1,0 +1,17 @@
+{
+  "name": "sanfangx Aidoku Sources",
+  "sources": [
+    {
+      "id": "zh.komiiccc",
+      "name": "Komiic CC",
+      "version": 2,
+      "iconURL": "icons/zh.komiiccc-v2.png",
+      "downloadURL": "sources/zh.komiiccc-v2.aix",
+      "languages": [
+        "zh"
+      ],
+      "contentRating": 0,
+      "baseURL": "https://komiic.cc"
+    }
+  ]
+}
