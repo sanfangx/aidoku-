@@ -29,6 +29,7 @@ const PAGE_SIZE: i32 = 20;
 const CATEGORY_PAGE_SIZE: i32 = 30;
 const RECOMMENDATION_PAGE_SIZE: i32 = 25;
 const SORT_ORDER_IDS: [&str; 3] = ["DATE_UPDATED", "VIEWS", "FAVORITE_COUNT"];
+const CHAPTER_MODE_KEY: &str = "chapterMode";
 const PREFER_BOOKS_KEY: &str = "preferBooks";
 const TOKEN_KEY: &str = "token";
 const JUST_LOGGED_IN_KEY: &str = "justLoggedIn";
@@ -104,21 +105,67 @@ impl KomiicSource {
 			volume_number: if is_book { serial_number } else { None },
 			url: Some(url),
 			language: Some(String::from("zh")),
+			scanlators: Some(Vec::from([String::from(if is_book {
+				"单行本"
+			} else {
+				"连载话"
+			})])),
 			..Default::default()
 		})
 	}
 
 	fn select_chapter_version(
-		books: Vec<Chapter>,
-		web_chapters: Vec<Chapter>,
-		prefer_books: bool,
+		mut books: Vec<Chapter>,
+		mut web_chapters: Vec<Chapter>,
+		mode: &str,
 	) -> Vec<Chapter> {
-		if prefer_books && !books.is_empty() {
-			books
-		} else if !web_chapters.is_empty() {
-			web_chapters
-		} else {
-			books
+		match mode {
+			"chapters" => {
+				if !web_chapters.is_empty() {
+					web_chapters
+				} else {
+					books
+				}
+			}
+			"books" => {
+				if !books.is_empty() {
+					books
+				} else {
+					web_chapters
+				}
+			}
+			_ => {
+				if books.is_empty() {
+					web_chapters.sort_by(|a, b| {
+						let a_num = a.chapter_number.unwrap_or(0.0);
+						let b_num = b.chapter_number.unwrap_or(0.0);
+						b_num.partial_cmp(&a_num).unwrap_or(core::cmp::Ordering::Equal)
+					});
+					web_chapters
+				} else if web_chapters.is_empty() {
+					books.sort_by(|a, b| {
+						let a_num = a.volume_number.unwrap_or(0.0);
+						let b_num = b.volume_number.unwrap_or(0.0);
+						b_num.partial_cmp(&a_num).unwrap_or(core::cmp::Ordering::Equal)
+					});
+					books
+				} else {
+					web_chapters.sort_by(|a, b| {
+						let a_num = a.chapter_number.unwrap_or(0.0);
+						let b_num = b.chapter_number.unwrap_or(0.0);
+						b_num.partial_cmp(&a_num).unwrap_or(core::cmp::Ordering::Equal)
+					});
+					books.sort_by(|a, b| {
+						let a_num = a.volume_number.unwrap_or(0.0);
+						let b_num = b.volume_number.unwrap_or(0.0);
+						b_num.partial_cmp(&a_num).unwrap_or(core::cmp::Ordering::Equal)
+					});
+					let mut combined = Vec::with_capacity(web_chapters.len() + books.len());
+					combined.extend(web_chapters);
+					combined.extend(books);
+					combined
+				}
+			}
 		}
 	}
 
@@ -144,14 +191,17 @@ impl KomiicSource {
 				}
 			}
 		}
-		let mut chapters = Self::select_chapter_version(books, web_chapters, Self::prefers_books());
-		chapters.sort_by(|a, b| {
-			let a_number = a.chapter_number.or(a.volume_number).unwrap_or(0.0);
-			let b_number = b.chapter_number.or(b.volume_number).unwrap_or(0.0);
-			b_number
-				.partial_cmp(&a_number)
-				.unwrap_or(core::cmp::Ordering::Equal)
-		});
+		let mode = Self::chapter_mode();
+		let mut chapters = Self::select_chapter_version(books, web_chapters, &mode);
+		if mode.as_str() != "all" {
+			chapters.sort_by(|a, b| {
+				let a_number = a.chapter_number.or(a.volume_number).unwrap_or(0.0);
+				let b_number = b.chapter_number.or(b.volume_number).unwrap_or(0.0);
+				b_number
+					.partial_cmp(&a_number)
+					.unwrap_or(core::cmp::Ordering::Equal)
+			});
+		}
 		Ok(chapters)
 	}
 }
@@ -578,17 +628,23 @@ mod tests {
 		}]);
 
 		let selected =
-			KomiicSource::select_chapter_version(books.clone(), web_chapters.clone(), true);
+			KomiicSource::select_chapter_version(books.clone(), web_chapters.clone(), "books");
 		assert_eq!(selected[0].key, "book-1");
 
 		let selected =
-			KomiicSource::select_chapter_version(books.clone(), web_chapters.clone(), false);
+			KomiicSource::select_chapter_version(books.clone(), web_chapters.clone(), "chapters");
 		assert_eq!(selected[0].key, "chapter-1");
 
-		let selected = KomiicSource::select_chapter_version(Vec::new(), web_chapters, true);
+		let selected =
+			KomiicSource::select_chapter_version(books.clone(), web_chapters.clone(), "all");
+		assert_eq!(selected.len(), 2);
+		assert_eq!(selected[0].key, "chapter-1");
+		assert_eq!(selected[1].key, "book-1");
+
+		let selected = KomiicSource::select_chapter_version(Vec::new(), web_chapters, "books");
 		assert_eq!(selected[0].key, "chapter-1");
 
-		let selected = KomiicSource::select_chapter_version(books, Vec::new(), false);
+		let selected = KomiicSource::select_chapter_version(books, Vec::new(), "chapters");
 		assert_eq!(selected[0].key, "book-1");
 	}
 }

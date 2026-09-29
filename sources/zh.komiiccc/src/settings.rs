@@ -22,8 +22,22 @@ impl KomiicSource {
 		defaults_set(JUST_LOGGED_IN_KEY, DefaultValue::Null);
 	}
 
+	pub(super) fn chapter_mode() -> String {
+		if let Some(mode) = defaults_get::<String>(CHAPTER_MODE_KEY) {
+			mode
+		} else if let Some(prefer_books) = defaults_get::<bool>(PREFER_BOOKS_KEY) {
+			if prefer_books {
+				String::from("books")
+			} else {
+				String::from("chapters")
+			}
+		} else {
+			String::from("all")
+		}
+	}
+
 	pub(super) fn prefers_books() -> bool {
-		defaults_get::<bool>(PREFER_BOOKS_KEY).unwrap_or(true)
+		Self::chapter_mode() == "books"
 	}
 }
 

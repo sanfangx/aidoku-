@@ -4,16 +4,26 @@
 		"title": "阅读设置",
 		"items": [
 			{
-				"type": "switch",
-				"key": "preferBooks",
-				"title": "优先显示单行本",
-				"default": true,
+				"type": "select",
+				"key": "chapterMode",
+				"title": "章节版本显示",
+				"values": [
+					"all",
+					"chapters",
+					"books"
+				],
+				"titles": [
+					"同时显示（连载话 + 单行本）",
+					"仅显示连载话",
+					"仅显示单行本"
+				],
+				"default": "all",
 				"refreshes": [
 					"content"
 				]
 			}
 		],
-		"footer": "Komiic 同一作品可能同时提供 Web 连载和单行本，两者是不同发行版本。"
+		"footer": "Komiic 同一作品可能同时提供连载（话）和单行本（卷）。默认同时显示，亦可在漫画详情页右上角按分组快速筛选。"
 	},
 	{
 		"type": "group",
