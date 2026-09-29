@@ -219,7 +219,6 @@ impl Source for KomiicSource {
 			.and_then(Value::as_array)
 			.ok_or_else(|| error!("Komiic missing images"))?;
 		let mut pages = Vec::new();
-		let mut pages = Vec::new();
 		for value in values {
 			if let Some(kid) = value.get("kid").and_then(Value::as_str) {
 				let mut context: PageContext = HashMap::new();
